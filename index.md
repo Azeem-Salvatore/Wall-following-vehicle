@@ -16,3 +16,4 @@ Check out the video given below
 
 https://user-images.githubusercontent.com/71832455/118361030-30edf880-b5a7-11eb-9b0d-4819b7e7c6ea.mp4
 
+To know more about this project, click on the "view on github" button on the top of this page.
