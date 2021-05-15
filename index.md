@@ -1,37 +1,18 @@
-## Welcome to GitHub Pages
+# Wall-following-vehicle
+This an AGV based project implemented in webots platform
 
-You can use the [editor on GitHub](https://github.com/Azeem-Salvatore/Wall-following-vehicle/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+This project comprises of three different robotic cars which tracks and follows walls. It also has an camera which helps it to identify a visual marker and stop. Once a robotic car (say Car A) reaches it's destination by tracking walls, it autonomously commands the next robotic car to move and while tracking the walls the robotic cars also avoid the obstacles placed in their route. In addition to wall following with obstacle avoidance and visual marker identification features, they also communicate with each other.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+# Robot Model
+The picture below shows the robot.
+![6wb](https://user-images.githubusercontent.com/71832455/118360134-edde5600-b5a3-11eb-87df-4e255700222c.png)
 
-### Markdown
+# Sensors Used
+I have modelled all the sensors that I have used for my robotic cars instead of incorporating the pre-existing "proto-sensors" and by this I mean, I designed it's outlook without using the various complete sensor models available. I have used distance sensors for both tracking the wall as well to avoid obstacles. To establish communication between them, I have modelled and used emitter-reciever modules. To detect the visual markers, I have used a camera.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+# Working
+Check out the video given below
 
-```markdown
-Syntax highlighted code block
 
-# Header 1
-## Header 2
-### Header 3
+https://user-images.githubusercontent.com/71832455/118361030-30edf880-b5a7-11eb-9b0d-4819b7e7c6ea.mp4
 
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/Azeem-Salvatore/Wall-following-vehicle/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
