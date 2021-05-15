@@ -1,0 +1,322 @@
+/*
+ * File:          wall_emitter.c
+ * Date: started on jan 13
+ * Description:
+ * Author:
+ * Modifications:
+ */
+
+
+// Fl = 620
+// l = 300 
+#include <webots/robot.h>
+#include<webots/motor.h>
+#include <webots/distance_sensor.h>
+#include <stdio.h>
+#include <string.h>
+#include <webots/emitter.h>
+#include <webots/receiver.h>
+#include <webots/camera.h>
+#include <webots/camera_recognition_object.h>
+
+/*
+ * You may want to add macros here.
+ */
+#define TIME_STEP 64
+#define COMMUNICATION_CHANNEL 1
+#define communication_channel 2
+
+const double ps_frontValue;
+const double ps_frontleftValue;
+const double ps_frontrightValue;
+const double ps_leftValue;
+const double ps_rightValue;
+const double gs_leftValue;
+const double gs_rightValue;
+char *name;
+int i, A, S, avoid_obstacle_counter, message_printed=0;
+
+
+/*
+ * This is the main program.
+ * The arguments of the main function can be specified by the
+ * "controllerArgs" field of the Robot node
+ */
+int main(int argc, char **argv) {
+  /* necessary to initialize webots stuff */
+  wb_robot_init();
+  
+  /* proximity sensors */
+WbDeviceTag ps_front;
+ps_front = wb_robot_get_device("ps0");
+wb_distance_sensor_enable(ps_front,TIME_STEP);
+ 
+WbDeviceTag ps_frontleft;
+ps_frontleft = wb_robot_get_device("ps1");
+wb_distance_sensor_enable(ps_frontleft,TIME_STEP);
+
+WbDeviceTag ps_frontright; 
+ps_frontright = wb_robot_get_device("ps2"); 
+wb_distance_sensor_enable(ps_frontright,TIME_STEP);
+    
+WbDeviceTag ps_left;
+ps_left = wb_robot_get_device("ps3"); 
+wb_distance_sensor_enable(ps_left,TIME_STEP);  
+
+WbDeviceTag ps_right;
+ps_right = wb_robot_get_device("ps4"); 
+wb_distance_sensor_enable(ps_right,TIME_STEP);  
+
+    //Intialize camera
+  
+WbDeviceTag camera = wb_robot_get_device("cam");
+wb_camera_enable(camera, TIME_STEP);
+wb_camera_recognition_enable(camera, TIME_STEP); 
+  
+
+/* ground sensors */ 
+WbDeviceTag gs_left;
+gs_left = wb_robot_get_device("gs0"); 
+wb_distance_sensor_enable(gs_left,TIME_STEP);
+
+WbDeviceTag gs_right; 
+gs_right = wb_robot_get_device("gs1"); 
+wb_distance_sensor_enable(gs_right,TIME_STEP);
+
+    // initialise motors
+  WbDeviceTag wheels[4];
+  char wheels_names[4][8] = {"wheel1", "wheel2", "wheel3", "wheel4"};
+  for (i = 0; i < 4; i++) {
+    wheels[i] = wb_robot_get_device(wheels_names[i]);
+   wb_motor_set_position(wheels[i], INFINITY);
+  }
+
+ // setup emitter channel
+ 
+  WbDeviceTag communication = wb_robot_get_device("emitter");
+ wb_emitter_set_channel(communication, COMMUNICATION_CHANNEL);
+ 
+
+ // setup receiver
+  WbDeviceTag communicationb = wb_robot_get_device("receiver");
+  wb_receiver_enable(communicationb, TIME_STEP);
+
+  void Forward()
+{ 
+    double lspeed = -1.0;
+    double rspeed = -1.0;
+                 // write actuators inputs
+    wb_motor_set_velocity(wheels[0], lspeed);
+    wb_motor_set_velocity(wheels[1], rspeed);
+    wb_motor_set_velocity(wheels[2], lspeed);
+    wb_motor_set_velocity(wheels[3], rspeed);
+    
+}
+
+void turnleft()
+{ 
+    double lspeed = 1.0;
+    double rspeed = -2.0;
+                 // write actuators inputs
+    wb_motor_set_velocity(wheels[0], lspeed);
+    wb_motor_set_velocity(wheels[1], rspeed);
+    wb_motor_set_velocity(wheels[2], lspeed);
+    wb_motor_set_velocity(wheels[3], rspeed);
+    
+}
+
+void turnright()
+{ 
+    double lspeed = -2.0;
+    double rspeed = 1.0;
+                 // write actuators inputs
+    wb_motor_set_velocity(wheels[0], lspeed);
+    wb_motor_set_velocity(wheels[1], rspeed);
+    wb_motor_set_velocity(wheels[2], lspeed);
+    wb_motor_set_velocity(wheels[3], rspeed);
+    
+    
+}
+
+void perfect_right()
+{
+    avoid_obstacle_counter--;
+    double lspeed = -1.0;
+    double rspeed = 1.0;
+    
+                     // write actuators inputs
+    wb_motor_set_velocity(wheels[0], lspeed);
+    wb_motor_set_velocity(wheels[1], rspeed);
+    wb_motor_set_velocity(wheels[2], lspeed);
+    wb_motor_set_velocity(wheels[3], rspeed);
+
+}
+
+void Stop()
+{ 
+    double lspeed = 0.0;
+    double rspeed = 0.0;
+                 // write actuators inputs
+    wb_motor_set_velocity(wheels[0], lspeed);
+    wb_motor_set_velocity(wheels[1], rspeed);
+    wb_motor_set_velocity(wheels[2], lspeed);
+    wb_motor_set_velocity(wheels[3], rspeed);
+    
+    
+}
+
+  /*
+   * You should declare here WbDeviceTag variables for storing
+   * robot devices like this:
+   *  WbDeviceTag my_sensor = wb_robot_get_device("my_sensor");
+   *  WbDeviceTag my_actuator = wb_robot_get_device("my_actuator");
+   */
+
+  /* main loop
+   * Perform simulation steps of TIME_STEP milliseconds
+   * and leave the loop when the simulation is over
+   */
+  while (wb_robot_step(TIME_STEP) != -1) {
+  
+  double lspeed = -1.0;
+  double rspeed = -1.0;
+  
+
+ const double ps_frontValue = wb_distance_sensor_get_value(ps_front);
+ const double ps_frontleftValue = wb_distance_sensor_get_value(ps_frontleft);
+ const double ps_frontrightValue = wb_distance_sensor_get_value(ps_frontright);
+ const double ps_leftValue = wb_distance_sensor_get_value(ps_left);
+ const double ps_rightValue = wb_distance_sensor_get_value(ps_right);
+ const double gs_leftValue = wb_distance_sensor_get_value(gs_left);
+ const double gs_rightValue = wb_distance_sensor_get_value(gs_right);
+ //printf("Front Left Sensor value is %f\n", ps_frontleftValue);
+ 
+  const WbCameraRecognitionObject *objects = wb_camera_recognition_get_objects(camera);
+  int object_num = wb_camera_recognition_get_number_of_objects(camera);
+  
+      if (wb_receiver_get_queue_length(communicationb) > 0) {
+        /* read current packet's data */
+    
+        const char *buffer = wb_receiver_get_data(communicationb);
+
+        if (message_printed != 1) {
+          /* print null-terminated message */
+          printf("Communication Inbound: \"%s\"\n", buffer);
+          printf("Blue Robot En-Route to Starting Point\n");
+          message_printed = 1;
+          A = 1;
+        }
+        /* fetch next packet */
+        wb_receiver_next_packet(communicationb);
+      } else {
+        if (message_printed != 2) {
+          printf("No Inbound Communication! \n");
+          message_printed = 2;
+        }
+      }
+  
+  if(ps_leftValue <= 600)  // l <= 600
+  {
+    if(ps_leftValue  <= 525 && ps_leftValue >= 425) // l is of range bet 425 - 525
+    {
+    Forward();
+    }
+    else if(ps_leftValue >= 580 && ps_frontleftValue >= 875)
+    {
+    turnleft();
+    }
+    else if(ps_leftValue <= 400 && ps_leftValue >= 200 && ps_frontleftValue <= 600)
+    {
+    turnright();
+    }
+    else
+    {
+    Forward();
+    }
+  }
+  
+  // To follow a wall
+  if(ps_leftValue >= 700 && ps_frontleftValue >= 950 )
+  {
+  turnleft();                 // inverse working due to negative motor speed
+  }                            // left = right and right = left
+  
+  if(ps_frontValue <= 750 && ps_frontleftValue <= 900 || ps_frontrightValue <= 900)
+  {
+  avoid_obstacle_counter = 30;
+  turnright();//perfect_right();
+  }
+  
+  for (i = 0; i < object_num; ++i)
+  {
+  name = objects[i].model; 
+  if (strcmp(name, "red")==0)
+  {
+  Stop();
+  S = 1;
+  const char *message = "Move To Point common collection point";
+  wb_emitter_send(communication, message, strlen(message) + 1);
+  printf("Stop");
+  }
+  else if (strcmp(name, "roomb")==0)
+  {
+  Stop();
+  S = 1;
+  const char *message = "Move To Point common collection point";
+  wb_emitter_send(communication, message, strlen(message) + 1);
+  printf("Stop");
+  }
+  else{printf("a");}
+  }
+  
+  if (S == 1 && A == 1 )
+  {
+  Forward();
+  
+    if(ps_leftValue <= 600)  // l <= 600
+  {
+    if(ps_leftValue  <= 525 && ps_leftValue >= 425) // l is of range bet 425 - 525
+    {
+    Forward();
+    }
+    else if(ps_leftValue >= 580 && ps_frontleftValue >= 875)
+    {
+    turnleft();
+    }
+    else if(ps_leftValue <= 400 && ps_leftValue >= 200 && ps_frontleftValue <= 600)
+    {
+    turnright();
+    }
+    else
+    {
+    Forward();
+    }
+  }
+  
+  // To follow a wall
+  if(ps_leftValue >= 700 && ps_frontleftValue >= 950 )
+  {
+  turnleft();                 // inverse working due to negative motor speed
+  }                            // left = right and right = left
+  
+  if(ps_frontValue <= 750 && ps_frontleftValue <= 900 || ps_frontrightValue <= 900)
+  {
+  avoid_obstacle_counter = 30;
+  turnright();//perfect_right();
+  }
+   if (strcmp(name, "red")==0)
+  {
+  Stop();
+  }
+  
+  }
+  
+  };
+
+  /* Enter your cleanup code here */
+
+  /* This is necessary to cleanup webots resources */
+  wb_robot_cleanup();
+
+  return 0;
+}
